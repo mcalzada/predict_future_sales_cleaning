@@ -14,4 +14,5 @@ pdf/Practica2_Predict_future_sales.pdf: conté el document amb les respostes de 
 
 # Desenvolupat per:
 Mireia Calzada (https://github.com/mcalzada)
+
 Noemí Lorente (https://github.com/noemilt)

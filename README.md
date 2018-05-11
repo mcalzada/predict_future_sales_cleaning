@@ -9,7 +9,7 @@ L'objectiu concret del projecte és aconseguir unes dades netes a partir dels da
 ## Estructura del projecte:
 - **code**: conté els arxius amb el codi R aplicat a les dades
 - **data**: conté els dataset originals així com els ja tractats
-pdf/Practica2_Predict_future_sales.pdf: conté el document amb les respostes de la pràctica
+- **pdf**: conté el document pdf amb les respostes de la pràctica
 
 
 # Desenvolupat per:

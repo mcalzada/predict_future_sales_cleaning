@@ -1,0 +1,836 @@
+
+> item_categories <- read.csv("item_categories.csv")
+
+> shops <- read.csv("shops.csv")
+
+> items <- read.csv("items.csv")
+
+> sample_submission <- read.csv("sample_submission.csv")
+
+> test <- read.csv("test.csv")
+
+> sales_train_v2 <- read.table("sales_train_v2.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> vendes <- sales_train_v2[,-(2)]
+
+> vendes <- sales_data[,-(4)]
+
+> attach(vendes)
+
+> dim(vendes)
+[1] 2935849       4
+
+> summary(vendes)
+         date            shop_id      item_id       item_cnt_day     
+ 28.12.2013:   9434   Min.   : 0   Min.   :    0   Min.   : -22.000  
+ 29.12.2013:   9335   1st Qu.:22   1st Qu.: 4476   1st Qu.:   1.000  
+ 30.12.2014:   9324   Median :31   Median : 9343   Median :   1.000  
+ 30.12.2013:   9138   Mean   :33   Mean   :10197   Mean   :   1.243  
+ 31.12.2014:   8347   3rd Qu.:47   3rd Qu.:15684   3rd Qu.:   1.000  
+ 27.12.2014:   8041   Max.   :59   Max.   :22169   Max.   :2169.000  
+ (Other)   :2882230                                                  
+
+> describe(vendes)
+vendes 
+
+ 4  Variables      2935849  Observations
+-------------------------------------------------------------------------------------------------------------------
+date 
+       n  missing distinct 
+ 2935849        0     1034 
+
+lowest : 01.01.2013 01.01.2014 01.01.2015 01.02.2013 01.02.2014, highest: 31.10.2013 31.10.2014 31.10.2015 31.12.2013 31.12.2014
+-------------------------------------------------------------------------------------------------------------------
+shop_id 
+       n  missing distinct     Info     Mean      Gmd      .05      .10      .25      .50      .75      .90 
+ 2935849        0       60    0.999       33    18.59        6       10       22       31       47       56 
+     .95 
+      57 
+
+lowest :  0  1  2  3  4, highest: 55 56 57 58 59
+-------------------------------------------------------------------------------------------------------------------
+item_id 
+       n  missing distinct     Info     Mean      Gmd      .05      .10      .25      .50      .75      .90 
+ 2935849        0    21807        1    10197     7257     1540     2416     4476     9343    15684    19436 
+     .95 
+   20949 
+
+lowest :     0     1     2     3     4, highest: 22165 22166 22167 22168 22169
+-------------------------------------------------------------------------------------------------------------------
+item_cnt_day 
+       n  missing distinct     Info     Mean      Gmd      .05      .10      .25      .50      .75      .90 
+ 2935849        0      198    0.281    1.243   0.4806        1        1        1        1        1        2 
+     .95 
+       2 
+
+lowest :  -22  -16   -9   -6   -5, highest:  624  637  669 1000 2169
+-------------------------------------------------------------------------------------------------------------------
+
+> str(vendes)
+'data.frame':	2935849 obs. of  4 variables:
+ $ date        : Factor w/ 1034 levels "01.01.2013","01.01.2014",..: 35 69 137 171 477 307 35 103 341 69 ...
+ $ shop_id     : int  59 25 25 25 25 25 25 25 25 25 ...
+ $ item_id     : int  22154 2552 2552 2554 2555 2564 2565 2572 2572 2573 ...
+ $ item_cnt_day: num  1 1 -1 1 1 1 1 1 1 3 ...
+
+
+
+***************** Objectiu 1: Quines variables influeixen més en el preu dels productes?  ***************** 
+
+
+> vendes <- read.csv("dades_totals.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> attach(vendes)
+
+> str(vendes)
+'data.frame':	2935849 obs. of  6 variables:
+ $ DATE_BLOCK_NUM  : int  0 0 0 0 0 0 0 0 0 0 ...
+ $ SHOP_ID         : int  25 25 25 25 25 25 25 25 25 25 ...
+ $ ITEM_ID         : int  785 785 791 791 791 791 791 791 804 810 ...
+ $ ITEM_PRICE      : num  349 349 600 600 600 600 600 600 240 199 ...
+ $ ITEM_CNT_DAY    : num  1 1 2 1 2 1 1 1 1 1 ...
+ $ ITEM_CATEGORY_ID: int  49 49 73 73 73 73 73 73 49 77 ...
+
+> dim(vendes)
+[1] 2935849       6
+
+> head(vendes)
+  DATE_BLOCK_NUM SHOP_ID ITEM_ID ITEM_PRICE ITEM_CNT_DAY ITEM_CATEGORY_ID
+1              0      25     785        349            1               49
+2              0      25     785        349            1               49
+3              0      25     791        600            2               73
+4              0      25     791        600            1               73
+5              0      25     791        600            2               73
+6              0      25     791        600            1               73
+
+
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$ITEM_CNT_DAY,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$ITEM_CNT_DAY
+S = 4.024e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+       rho 
+0.04586005 
+
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$DATE_BLOCK_NUM,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$DATE_BLOCK_NUM
+S = 3.6388e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+      rho 
+0.1371966 
+
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$SHOP_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$SHOP_ID
+S = 4.433e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+        rho 
+-0.05112045 
+
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$ITEM_CATEGORY_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$ITEM_CATEGORY_ID
+S = 5.9269e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+       rho 
+-0.4053331 
+
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$ITEM_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$ITEM_ID
+S = 5.5819e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+       rho 
+-0.3235155
+
+
+> cor.test(x = vendes$ITEM_CNT_DAY, y = vendes$DATE_BLOCK_NUM,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_CNT_DAY and vendes$DATE_BLOCK_NUM
+S = 4.203e+18, p-value = 0.000000004857
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+        rho 
+0.003415363 
+
+
+> cor.test(x = vendes$ITEM_CNT_DAY, y = vendes$SHOP_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_CNT_DAY and vendes$SHOP_ID
+S = 4.2265e+18, p-value = 0.0002349
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+         rho 
+-0.002146661 
+
+
+> cor.test(x = vendes$ITEM_CNT_DAY, y = vendes$ITEM_CATEGORY_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_CNT_DAY and vendes$ITEM_CATEGORY_ID
+S = 4.2827e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+        rho 
+-0.01547857 
+
+
+> cor.test(x = vendes$ITEM_CNT_DAY, y = vendes$ITEM_ID,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_CNT_DAY and vendes$ITEM_ID
+S = 4.2351e+18, p-value = 6.742e-13
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+         rho 
+-0.004193071
+
+
+
+#provem sense outliers
+> # utilitzem boxplot.stats per a veure els valors outliers de ITEM_PRICE
+
+> outliersCnt <-boxplot.stats(vendes$ITEM_PRICE)$out 
+
+> indexCnt <- which( vendes$ITEM_PRICE %in% outliersCnt)
+
+> length(indexCnt)
+[1] 258942
+
+> # eliminem els registres que contenen outliers de ITEM_PRICE
+
+> vendes<-vendes[-indexCnt,]
+
+> dim(vendes)
+[1] 2676907       6
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$ITEM_CNT_DAY,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$ITEM_CNT_DAY
+S = 3.121e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+       rho 
+0.02377715
+
+> cor.test(x = vendes$ITEM_PRICE, y = vendes$DATE_BLOCK_NUM,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_PRICE and vendes$DATE_BLOCK_NUM
+S = 2.8737e+18, p-value < 2.2e-16
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+      rho 
+0.1011314 
+
+
+> cor.test(x = vendes$ITEM_CNT_DAY, y = vendes$DATE_BLOCK_NUM,
++          alternative = "two.sided", conf.level = 0.95, method = "spearman")
+
+	Spearman's rank correlation rho
+
+data:  vendes$ITEM_CNT_DAY and vendes$DATE_BLOCK_NUM
+S = 3.1966e+18, p-value = 0.8337
+alternative hypothesis: true rho is not equal to 0
+sample estimates:
+         rho 
+0.0001283099
+
+
+#Mijançant diagrama dispersió, comprovem si existeix relació lineal o monotònica.
+#Si no hi ha relació, no té sentit calcular aquest tipus de correlacions.
+require(MASS)
+require(ggplot2)
+
+ggplot(data = vendes, aes(x = ITEM_PRICE, y = DATA_BLOCK_NUM)) +
+  geom_point(colour = "red4") +
+  ggtitle("Diagrama de dispersió") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = vendes, aes(x = ITEM_PRICE, y = ITEM_CNT_DAY)) + 
+  geom_point(colour = "red4") +
+  ggtitle("Diagrama de dispersió") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = vendes, aes(x = ITEM_CNT_DAY, y = DATA_BLOCK_NUM)) + 
+  geom_point(colour = "red4") +
+  ggtitle("Diagrama de dispersió") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+
+
+
+
+
+
+
+
+***************** Objectiu 2: La facturació és superior durant el segon semestre de l’any?  ***************** 
+
+> vendes_1semestre <- read.csv("dataset_primer_semestre.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> vendes_2semestre <- read.csv("dataset_segon_semestre.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> str(vendes_1semestre)
+'data.frame':	125763 obs. of  6 variables:
+ $ DATE_BLOCK_NUM: int  0 0 0 0 0 0 0 0 0 0 ...
+ $ MES           : Factor w/ 18 levels "01/01/13","01/01/14",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ ITEM_ID       : int  3140 2252 2222 3175 3438 1119 2058 1904 2522 481 ...
+ $ SUM_PRICE     : num  62604 93758 198 2990 43167 ...
+ $ SUM_COUNT     : int  65 177 1 10 12 6 2 56 2 26 ...
+ $ TOTAL         : num  4069260 16595193 198 29900 518004 ...
+
+> str(vendes_2semestre)
+'data.frame':	108149 obs. of  6 variables:
+ $ DATE_BLOCK_NUM: int  6 6 6 6 6 6 6 6 6 6 ...
+ $ MES           : Factor w/ 16 levels "01/07/13","01/07/14",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ ITEM_ID       : int  21996 19408 20139 10469 10733 2417 13370 12128 4163 3705 ...
+ $ SUM_PRICE     : num  449 27033.05 0.14 4389 8224.18 ...
+ $ SUM_COUNT     : int  1 14 20 11 31 69 14 45 227 69 ...
+ $ TOTAL         : num  449 378462.7 2.8 48279 254949.6 ...
+
+> head(vendes_1semestre)
+  DATE_BLOCK_NUM      MES ITEM_ID SUM_PRICE SUM_COUNT    TOTAL
+1              0 01/01/13    3140  62604.00        65  4069260
+2              0 01/01/13    2252  93758.15       177 16595193
+3              0 01/01/13    2222    198.00         1      198
+4              0 01/01/13    3175   2990.00        10    29900
+5              0 01/01/13    3438  43167.00        12   518004
+6              0 01/01/13    1119   2268.00         6    13608
+
+> head(vendes_2semestre)
+  DATE_BLOCK_NUM      MES ITEM_ID SUM_PRICE SUM_COUNT     TOTAL
+1              6 01/07/13   21996    449.00         1     449.0
+2              6 01/07/13   19408  27033.05        14  378462.7
+3              6 01/07/13   20139      0.14        20       2.8
+4              6 01/07/13   10469   4389.00        11   48279.0
+5              6 01/07/13   10733   8224.18        31  254949.6
+6              6 01/07/13    2417  22280.00        69 1537320.0
+
+> t.test(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL,alternative = "less")
+
+	Welch Two Sample t-test
+
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+t = -3.4846, df = 146350, p-value = 0.0002466
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+      -Inf -674199.8
+sample estimates:
+mean of x mean of y 
+  1691281   2968281
+
+
+> require(MASS)
+
+> ajust <- fitdistr(vendes_1semestre$TOTAL,"normal")
+
+> ajust
+      mean          sd    
+   1691280.5   50671111.0 
+ (  142884.1) (  101034.3)
+
+
+> #test Kolmogorov-Smirnov per comprovar la normalitat. Si p<0.05
+
+> Ks<- ks.test(vendes_1semestre$TOTAL, "pnorm", mean =ajust$estimate[1], sd= ajust$estimate[2])
+
+> Ks
+
+	One-sample Kolmogorov-Smirnov test
+
+data:  vendes_1semestre$TOTAL
+D = 0.48652, p-value < 2.2e-16
+alternative hypothesis: two-sided
+
+
+> par(mfrow=c(1,3))
+
+> hist(vendes_1semestre$TOTAL, xlab="Semestre 1 - Total", ylab="Freqüència", las=1, main="")
+
+> plot(density(vendes_1semestre$TOTAL), xlab="Semestre 1 - Total", ylab="Densitat", las=1, main="")
+
+> qqnorm(vendes_1semestre$TOTAL, xlab="Quantils teòrics", ylab="Quantils mostrals", las=1,main="")
+
+> qqline(vendes_1semestre$TOTAL)
+
+> # estimar els paràmetres de la distribució normal a partir de la funció fitdistr del paquet MASS, en la variable vendes_2semestre$TOTAL
+
+> require(MASS)
+
+> ajust <- fitdistr(vendes_2semestre$TOTAL,"normal")
+
+> ajust
+      mean           sd     
+    2968281.4   110980731.7 
+ (   337470.9) (   238628.0)
+
+> #test Kolmogorov-Smirnov per comprovar la normalitat. Si p<0.05
+
+> Ks<- ks.test(vendes_2semestre$TOTAL, "pnorm", mean =ajust$estimate[1], sd= ajust$estimate[2])
+
+> Ks
+
+	One-sample Kolmogorov-Smirnov test
+
+data:  vendes_2semestre$TOTAL
+D = 0.48926, p-value < 2.2e-16
+alternative hypothesis: two-sided
+
+
+> par(mfrow=c(1,3))
+
+> hist(vendes_2semestre$TOTAL, xlab="Semestre 2 - Total", ylab="Freqüència", las=1, main="")
+
+> plot(density(vendes_2semestre$TOTAL), xlab="Semestre 2 - Total", ylab="Densitat", las=1, main="")
+
+> qqnorm(vendes_2semestre$TOTAL, xlab="Quantils teòrics", ylab="Quantils mostrals", las=1,main="")
+
+> qqline(vendes_2semestre$TOTAL)
+
+
+> fligner.test(x = list(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL))
+
+	Fligner-Killeen test of homogeneity of variances
+
+data:  list(vendes_1semestre$TOTAL, vendes_2semestre$TOTAL)
+Fligner-Killeen:med chi-squared = 53.766, df = 1, p-value = 2.259e-13
+
+
+> wilcox.test(x = vendes_1semestre$TOTAL, y = vendes_2semestre$TOTAL, alternative = "less", mu = 0, paired = FALSE, conf.int = 0.95)
+
+	Wilcoxon rank sum test with continuity correction
+
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+W = 6744100000, p-value = 0.0002609
+alternative hypothesis: true location shift is less than 0
+95 percent confidence interval:
+     -Inf -4.00007
+sample estimates:
+difference in location 
+             -38.00001 
+
+
+
+
+
+> #test Kolmogorov-Smirnov per comprovar la normalitat. Si p<0.05
+
+> Ks<- ks.test(vendes_1semestre$TOTAL, "pnorm", mean =ajust$estimate[1], sd= ajust$estimate[2])
+
+> Ks
+
+	One-sample Kolmogorov-Smirnov test
+
+data:  vendes_1semestre$TOTAL
+D = 0.48652, p-value < 2.2e-16
+alternative hypothesis: two-sided
+
+
+> par(mfrow=c(1,3))
+
+> hist(vendes_1semestre$TOTAL, xlab="Semestre 1 - Total", ylab="Freqüència", las=1, main="")
+
+> plot(density(vendes_1semestre$TOTAL), xlab="Semestre 1 - Total", ylab="Densitat", las=1, main="")
+
+> qqnorm(vendes_1semestre$TOTAL, xlab="Quantils teòrics", ylab="Quantils mostrals", las=1,main="")
+
+> qqline(vendes_1semestre$TOTAL)
+
+> # estimar els paràmetres de la distribució normal a partir de la funció fitdistr del paquet MASS, en la variable vendes_2semestre$TOTAL
+
+> require(MASS)
+
+> ajust <- fitdistr(vendes_2semestre$TOTAL,"normal")
+
+> ajust
+      mean           sd     
+    2968281.4   110980731.7 
+ (   337470.9) (   238628.0)
+
+> #test Kolmogorov-Smirnov per comprovar la normalitat. Si p<0.05
+
+> Ks<- ks.test(vendes_2semestre$TOTAL, "pnorm", mean =ajust$estimate[1], sd= ajust$estimate[2])
+
+> Ks
+
+	One-sample Kolmogorov-Smirnov test
+
+data:  vendes_2semestre$TOTAL
+D = 0.48926, p-value < 2.2e-16
+alternative hypothesis: two-sided
+
+
+> par(mfrow=c(1,3))
+
+> hist(vendes_2semestre$TOTAL, xlab="Semestre 2 - Total", ylab="Freqüència", las=1, main="")
+
+> plot(density(vendes_2semestre$TOTAL), xlab="Semestre 2 - Total", ylab="Densitat", las=1, main="")
+
+> qqnorm(vendes_2semestre$TOTAL, xlab="Quantils teòrics", ylab="Quantils mostrals", las=1,main="")
+
+> qqline(vendes_2semestre$TOTAL)
+
+
+> fligner.test(x = list(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL))
+
+	Fligner-Killeen test of homogeneity of variances
+
+data:  list(vendes_1semestre$TOTAL, vendes_2semestre$TOTAL)
+Fligner-Killeen:med chi-squared = 53.766, df = 1, p-value = 2.259e-13
+
+
+> wilcox.test(x = vendes_1semestre$TOTAL, y = vendes_2semestre$TOTAL, alternative = "less", mu = 0, paired = FALSE, conf.int = 0.95)
+    Wilcoxon rank sum test with continuity correction
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+W = 6744100000, p-value = 0.0002609
+alternative hypothesis: true location shift is less than 0
+95 percent confidence interval:
+     -Inf -4.00007
+sample estimates:
+difference in location
+             -38.00001
+
+
+> #eliminem els outliers de vendes_1semestre
+> # utilitzem boxplot.stats per a veure els valors outliers de vendes_1semestre$TOTAL
+> outliers1sem <-boxplot.stats(vendes_1semestre$TOTAL)$out 
+
+> index1sem <- which( vendes_1semestre$TOTAL %in% outliers1sem)
+
+> length(index1sem)
+[1] 21673
+
+> vendes_1semestre<-vendes_1semestre[-index1sem,]
+
+> #eliminem els outliers de vendes_2semestre
+
+> # utilitzem boxplot.stats per a veure els valors outliers de vendes_2semestre$TOTAL
+
+> outliers2sem <-boxplot.stats(vendes_2semestre$TOTAL)$out
+
+> index2sem <- which( vendes_2semestre$TOTAL %in% outliers2sem)
+
+> length(index2sem)
+[1] 18868
+
+> # eliminem els registres que contenen outliers de vendes_2semestre
+
+> vendes_2semestre<-vendes_2semestre[-index2sem,]
+
+> fligner.test(x = list(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL))
+
+	Fligner-Killeen test of homogeneity of variances
+
+data:  list(vendes_1semestre$TOTAL, vendes_2semestre$TOTAL)
+Fligner-Killeen:med chi-squared = 6.2024, df = 1, p-value = 0.01276
+
+
+
+> wilcox.test(x = vendes_1semestre$TOTAL, y = vendes_2semestre$TOTAL, alternative = "less", mu = 0, paired = FALSE, conf.int = 0.95)
+    Wilcoxon rank sum test with continuity correction
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+W = 4612800000, p-value = 0.002861
+alternative hypothesis: true location shift is less than 0
+95 percent confidence interval:
+            -Inf -0.000002762126
+sample estimates:
+difference in location
+              -8.99995
+
+
+> t.test(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL,alternative = "less")
+
+	Welch Two Sample t-test
+
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+t = -9.0774, df = 182480, p-value < 2.2e-16
+alternative hypothesis: true difference in means is less than 0
+95 percent confidence interval:
+      -Inf -762.3097
+sample estimates:
+mean of x mean of y 
+ 12866.84  13797.85 
+
+> t.test(vendes_1semestre$TOTAL,vendes_2semestre$TOTAL,alternative = "great")
+
+	Welch Two Sample t-test
+
+data:  vendes_1semestre$TOTAL and vendes_2semestre$TOTAL
+t = -9.0774, df = 182480, p-value = 1
+alternative hypothesis: true difference in means is greater than 0
+95 percent confidence interval:
+ -1099.715       Inf
+sample estimates:
+mean of x mean of y 
+ 12866.84  13797.85
+
+
+###### Objectiu 3: Crearem models de regressió que permetin predir el preu dels productes ######
+
+
+
+> setwd("/home/ramon/Documents/Noemi/predict_future_sales_cleaning/data/")
+
+> vendes <- read.csv("dades_totals.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+
+> attach(vendes)
+
+> str(vendes)
+'data.frame':	2935849 obs. of  6 variables:
+ $ DATE_BLOCK_NUM  : int  0 0 0 0 0 0 0 0 0 0 ...
+ $ SHOP_ID         : int  25 25 25 25 25 25 25 25 25 25 ...
+ $ ITEM_ID         : int  785 785 791 791 791 791 791 791 804 810 ...
+ $ ITEM_PRICE      : num  349 349 600 600 600 600 600 600 240 199 ...
+ $ ITEM_CNT_DAY    : num  1 1 2 1 2 1 1 1 1 1 ...
+ $ ITEM_CATEGORY_ID: int  49 49 73 73 73 73 73 73 49 77 ...
+
+> dim(vendes)
+[1] 2935849       6
+
+> head(vendes)
+  DATE_BLOCK_NUM SHOP_ID ITEM_ID ITEM_PRICE ITEM_CNT_DAY ITEM_CATEGORY_ID
+1              0      25     785        349            1               49
+2              0      25     785        349            1               49
+3              0      25     791        600            2               73
+4              0      25     791        600            1               73
+5              0      25     791        600            2               73
+6              0      25     791        600            1               73
+
+> #funcio sample_frac del package dplyr per crear una mostra
+
+> require(dplyr)
+
+> mostra <- sample_frac(vendes, 0.05, replace = FALSE)
+
+> dim(mostra)
+[1] 146792      6
+
+> #funcio sample_frac del package dplyr per crear una mostra
+
+> require(dplyr)
+
+> mostra <- sample_frac(vendes, 0.01, replace = FALSE)
+
+> dim(mostra)
+[1] 29358     6
+
+> #funcio sample_frac del package dplyr per crear una mostra
+
+> require(dplyr)
+
+> mostra <- sample_frac(vendes, 0.001, replace = FALSE)
+
+> dim(mostra)
+[1] 2936    6
+
+
+
+#Kendall–Theil Sen Siegel nonparametric linear regression
+> set.seed(1234)
+
+> library(mblm)
+
+> model1.k <- mblm(ITEM_PRICE ~ DATE_BLOCK_NUM, data=mostra)
+
+> summary(model1.k)
+
+Call:
+mblm(formula = ITEM_PRICE ~ DATE_BLOCK_NUM, dataframe = mostra)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+ -538.8  -159.1    33.8   619.5 27603.3 
+
+Coefficients:
+               Estimate     MAD V value Pr(>|V|)    
+(Intercept)     308.091 225.195 4021128   <2e-16 ***
+DATE_BLOCK_NUM    7.143  17.262 2668666   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1877 on 2934 degrees of freedom
+
+
+> model2.k <- mblm(ITEM_PRICE ~ SHOP_ID, data=mostra)
+
+> summary(model2.k)
+
+Call:
+mblm(formula = ITEM_PRICE ~ SHOP_ID, dataframe = mostra)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+ -454.4  -205.5   -55.5   544.5 27535.5 
+
+Coefficients:
+            Estimate    MAD V value    Pr(>|V|)    
+(Intercept)   454.47 366.38 4021236     < 2e-16 ***
+SHOP_ID         0.00   9.47 1430684 0.000000546 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1506 on 2934 degrees of freedom
+
+
+
+> model3.k <- mblm(ITEM_PRICE ~ ITEM_CATEGORY_ID, data=mostra)
+
+> summary(model3.k)
+
+Call:
+mblm(formula = ITEM_PRICE ~ ITEM_CATEGORY_ID, dataframe = mostra)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+ -470.9   -39.7   129.1   639.4 27362.7 
+
+Coefficients:
+                 Estimate    MAD V value Pr(>|V|)    
+(Intercept)        750.80 491.93 4079325   <2e-16 ***
+ITEM_CATEGORY_ID   -10.29  12.41  591500   <2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1509 on 2934 degrees of freedom
+
+
+> model4.k <- mblm(ITEM_PRICE ~ ITEM_CNT_DAY, data=mostra)
+
+> summary(model4.k)
+
+Call:
+mblm(formula = ITEM_PRICE ~ ITEM_CNT_DAY, dataframe = mostra)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+ -1594   -150      0    600  27141 
+
+Coefficients:
+             Estimate   MAD V value Pr(>|V|)    
+(Intercept)     349.0 518.9 3955381   <2e-16 ***
+ITEM_CNT_DAY     50.0 222.4 1941595    0.102    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1516 on 2934 degrees of freedom
+
+
+
+> model5.k <- mblm(ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM, data=mostra)
+[42] ERROR:
+Only linear models are accepted
+
+
+> model6.k <- mblm(ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM + ITEM_CATEGORY_ID, data=mostra)
+[43] ERROR:
+Only linear models are accepted
+
+
+
+
+
+
+
+
+
+
+#Quantile regression
+install.packages("quantreg")
+library(quantreg)
+vendes <- read.csv("dades_totals.csv", header=TRUE, sep=",", na.strings="NA", dec=".", strip.white=TRUE)
+#funcio sample_frac del package dplyr per crear una mostra
+require(dplyr)
+mostra <- sample_frac(vendes, 0.001, replace = FALSE)
+dim(mostra)
+
+> model1_q50 <- rq(ITEM_PRICE ~ DATE_BLOCK_NUM, tau = 0.5, data = vendes)
+> summary(model1_q50)
+
+Call: rq(formula = ITEM_PRICE ~ DATE_BLOCK_NUM, tau = 0.5, data = mostra)
+
+tau: [1] 0.5
+
+Coefficients:
+               Value     Std. Error t value   Pr(>|t|) 
+(Intercept)    367.73684  14.78255   24.87641   0.00000
+DATE_BLOCK_NUM   5.21053   1.43332    3.63529   0.00028
+
+
+> model2_q50 <- rq(ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM, tau = 0.5, data = mostra)
+> summary(model2_q50)
+
+Call: rq(formula = ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM, tau = 0.5, 
+    data = mostra)
+
+tau: [1] 0.5
+
+Coefficients:
+               Value     Std. Error t value   Pr(>|t|) 
+(Intercept)    351.33333  19.01938   18.47239   0.00000
+ITEM_CNT_DAY     9.16667  10.23384    0.89572   0.37048
+DATE_BLOCK_NUM   5.50000   1.43371    3.83621   0.00013
+
+> model3_q50 <- rq(ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM + ITEM_CATEGORY_ID, tau = 0.5, data = mostra)
+> summary(model3_q50)
+
+Call: rq(formula = ITEM_PRICE ~ ITEM_CNT_DAY + DATE_BLOCK_NUM + ITEM_CATEGORY_ID, 
+    tau = 0.5, data = mostra)
+
+tau: [1] 0.5
+
+Coefficients:
+                 Value     Std. Error t value   Pr(>|t|) 
+(Intercept)      856.03308  27.73605   30.86355   0.00000
+ITEM_CNT_DAY       0.59801   7.74162    0.07725   0.93843
+DATE_BLOCK_NUM     7.90120   0.83498    9.46275   0.00000
+ITEM_CATEGORY_ID -11.57533   0.42287  -27.37303   0.00000
+Warning message:
+In summary.rq(model3_q50) : 51 non-positive fis
+
+
